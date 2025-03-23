@@ -6,7 +6,7 @@ struct MusicPlayerApp: App {
     
     var body: some Scene {
         WindowGroup {
-            LibrarayView(viewModel: self.container.makeLibraryViewModel())
+            LibraryView(viewModel: self.container.makeLibraryViewModel())
         }
     }
 }
