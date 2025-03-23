@@ -26,8 +26,7 @@ let project = Project(
             dependencies: [
                 .Service.MusicService.Interface,
                 .Service.MusicService.Implement,
-                .Shared.CommonExtension,
-                .Storage
+                .Shared.CommonExtension
             ]
         ),
     ]
