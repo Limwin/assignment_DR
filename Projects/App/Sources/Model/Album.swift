@@ -9,7 +9,7 @@ import UIKit
 
 import MusicServiceInterface
 
-struct Album {
+struct Album: Hashable {
     let name: String
     let artworkImage: UIImage?
     let tracks: [Track]

@@ -30,4 +30,8 @@ final class LibraryViewModel: ObservableObject {
             }
         }
     }
+    
+    func makeDetailViewModel(for album: Album) -> LibraryDetailViewModel {
+        LibraryDetailViewModel(album: album)
+    }
 }

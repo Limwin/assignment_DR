@@ -9,7 +9,7 @@ import CoreMedia
 
 import MusicServiceInterface
 
-struct Track {
+struct Track: Hashable {
     let title: String
     let artist: String
     let duration: CMTime

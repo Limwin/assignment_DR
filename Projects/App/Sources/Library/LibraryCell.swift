@@ -47,6 +47,7 @@ struct LibraryCell: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(self.album.name)
                 .font(.headline)
+                .foregroundStyle(.black)
                 .lineLimit(1)
             
             Text(self.album.artistName)
