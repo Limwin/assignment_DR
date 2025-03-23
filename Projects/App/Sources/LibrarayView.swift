@@ -21,20 +21,3 @@ struct LibrarayView: View {
             }
     }
 }
-
-import MusicServiceInterface
-
-final class LibraryViewModel: ObservableObject {
-    
-    private let service: MusicService
-    
-    init(service: MusicService) {
-        self.service = service
-    }
-    
-    func fetchAlbums() {
-        Task.detached {
-            try? await self.service.fetchAlbums()
-        }
-    }
-}
