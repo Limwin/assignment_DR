@@ -8,8 +8,10 @@ private let target = Target.target(
     destinations: [.iPhone],
     product: .framework,
     bundleId: "\(BundleId.id).\(name)",
+    deploymentTargets: .default,
     infoPlist: .default,
-    sources: [.glob(.relativeToManifest("Sources/**"))]
+    sources: [.glob(.relativeToManifest("Sources/**"))],
+    resources: [.glob(pattern: .relativeToManifest("Resources/**"))]
 )
 
 let project = Project(

@@ -11,6 +11,7 @@ let project = Project(
             destinations: [.iPhone],
             product: .app,
             bundleId: BundleId.id,
+            deploymentTargets: .default,
             infoPlist: .extendingDefault(
                 with: [
                     "UILaunchScreen": [

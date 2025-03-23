@@ -13,6 +13,7 @@ private let interfaceTarget = Target.target(
     destinations: [.iPhone],
     product: .framework,
     bundleId: BundleId.service(Constants.interfaceName),
+    deploymentTargets: .default,
     infoPlist: .default,
     sources: [.glob(.relativeToManifest("Interface/Sources/**"))]
 )
@@ -22,6 +23,7 @@ private let inmplementTarget = Target.target(
     destinations: [.iPhone],
     product: .framework,
     bundleId: BundleId.service(Constants.implementName),
+    deploymentTargets: .default,
     infoPlist: .default,
     sources: [.glob(.relativeToManifest("Implement/Sources/**"))]
 )

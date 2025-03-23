@@ -1,5 +1,9 @@
 import ProjectDescription
 
+public extension DeploymentTargets {
+    static let `default` = DeploymentTargets.iOS("15.0")
+}
+
 public enum BundleId {
     public static let id = "com.dr.MusicPlayer"
     

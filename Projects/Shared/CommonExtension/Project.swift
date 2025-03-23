@@ -8,6 +8,7 @@ private let target = Target.target(
     destinations: [.iPhone],
     product: .framework,
     bundleId: BundleId.shared(name),
+    deploymentTargets: .default,
     infoPlist: .default,
     sources: [.glob(.relativeToManifest("Sources/**"))]
 )
