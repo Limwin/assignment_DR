@@ -11,15 +11,23 @@ import MusicServiceInterface
 
 final class LibraryViewModel: ObservableObject {
     
+    @Published private(set) var albums: [Album] = []
     private let service: MusicService
     
     init(service: MusicService) {
         self.service = service
     }
     
+    @MainActor
     func fetchAlbums() {
-        Task.detached {
-            try? await self.service.fetchAlbums()
+        Task {
+            do {
+                let albums = try await self.service.fetchAlbums().map { $0.toDomain() }
+                
+                self.albums.append(contentsOf: albums)
+            } catch {
+                
+            }
         }
     }
 }

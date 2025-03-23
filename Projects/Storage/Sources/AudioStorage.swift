@@ -8,10 +8,6 @@
 import Foundation
 import AVFoundation
 
-public protocol AudioStorageType: AnyObject {
-    func getAllAudioMetadata() async -> [AudioMetadata]
-}
-
 public final class AudioStorage: AudioStorageType {
     
     private var bundle: Bundle {
