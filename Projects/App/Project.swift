@@ -19,6 +19,7 @@ let project = Project(
                         "UIImageName": "",
                     ],
                     "UIUserInterfaceStyle": "Light",
+                    "UIBackgroundModes": ["audio"]
                 ]
             ),
             sources: [.glob(.relativeToManifest("Sources/**"))],
