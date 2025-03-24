@@ -10,7 +10,7 @@ import SwiftUI
 import CommonExtension
 
 struct LibraryDetailView: View {
-    
+    @EnvironmentObject private var musicPlayerState: MusicPlayerState
     @ObservedObject private var viewModel: LibraryDetailViewModel
     
     init(viewModel: LibraryDetailViewModel) {
@@ -63,12 +63,14 @@ struct LibraryDetailView: View {
     private var albumActionView: some View {
         HStack(spacing: 12) {
             ImageButton(systemName: "play.fill", size: 15, isShowBorder: true) {
-                
+                let album = self.viewModel.album
+                self.musicPlayerState.playAlbum(album, playMode: .sequence)
             }
             
             
             ImageButton(systemName: "shuffle", size: 15, isShowBorder: true) {
-                
+                let album = self.viewModel.album
+                self.musicPlayerState.playAlbum(album, playMode: .random)
             }
         }
     }

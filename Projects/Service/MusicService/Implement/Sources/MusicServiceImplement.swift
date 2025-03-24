@@ -31,7 +31,8 @@ public final class MusicServiceImplement: MusicService {
             let track = Track(
                 title: metadata.title,
                 artist: metadata.artist,
-                duration: metadata.duration
+                duration: metadata.duration,
+                url: metadata.url
             )
             
             return TrackInfo(

@@ -11,10 +11,12 @@ public struct Track {
     public let title: String
     public let artist: String
     public let duration: CMTime
+    public let url: URL
     
-    public init(title: String, artist: String, duration: CMTime) {
+    public init(title: String, artist: String, duration: CMTime, url: URL) {
         self.title = title
         self.artist = artist
         self.duration = duration
+        self.url = url
     }
 }

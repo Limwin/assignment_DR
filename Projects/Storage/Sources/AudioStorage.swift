@@ -69,7 +69,8 @@ public final class AudioStorage: AudioStorageType {
             title: title,
             artist: artist,
             artworkData: artwork,
-            duration: duration
+            duration: duration,
+            url: audioURL
         )
     }
     
