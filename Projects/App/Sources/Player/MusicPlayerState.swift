@@ -11,7 +11,7 @@ import Combine
 final class MusicPlayerState: ObservableObject {
     
     enum PlayMode {
-        case sequence
+        case sequence(startAt: Int = 0)
         case random
     }
     
@@ -102,8 +102,9 @@ final class MusicPlayerState: ObservableObject {
     
     func playAlbum(_ album: Album, playMode: PlayMode) {
         switch playMode {
-        case .sequence:
+        case .sequence(let startAt):
             self.currentAlbum = album
+            self.trackIndex = startAt
         case .random:
             let shuffledTracks = album.tracks.shuffled()
             self.currentAlbum = Album(
