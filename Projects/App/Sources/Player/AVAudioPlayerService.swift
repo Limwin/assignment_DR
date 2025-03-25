@@ -16,8 +16,6 @@ final class AVAudioPlayerService {
         case playbackFinished
         /// 재생 시간 업데이트
         case progressUpdated(TimeInterval)
-        /// 재생 상태 변경(재생, 일시정지)
-        case playbackStateChanged(Bool)
         /// 에러
         case error(Error)
     }
@@ -68,7 +66,6 @@ final class AVAudioPlayerService {
             self.player?.prepareToPlay()
             self.player?.play()
             
-            self.actionSubject.send(.playbackStateChanged(true))
             self.startProgressTimer()
         } catch {
             self.actionSubject.send(.error(error))
@@ -78,12 +75,10 @@ final class AVAudioPlayerService {
     func pause() {
         self.player?.pause()
         self.progressTimer?.invalidate()
-        self.actionSubject.send(.playbackStateChanged(false))
     }
     
     func resume() {
         self.player?.play()
-        self.actionSubject.send(.playbackStateChanged(true))
         self.startProgressTimer()
     }
     
@@ -122,12 +117,10 @@ final class AVAudioPlayerService {
         case .oldDeviceUnavailable:
             if self.isPlaying {
                 self.player?.pause()
-                self.actionSubject.send(.playbackStateChanged(false))
             }
         case .newDeviceAvailable:
             if !self.isPlaying {
                 self.player?.play()
-                self.actionSubject.send(.playbackStateChanged(true))
             }
             
         default:

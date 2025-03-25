@@ -34,8 +34,9 @@ final class MusicPlayerState: ObservableObject {
         self.currentAlbum?.artworkImage
     }
     
-    private var trackIndex = 0
     private var currentAlbum: Album?
+    
+    private var trackIndex = 0
     private var currentTrack: Track? {
         self.currentAlbum?.tracks[self.trackIndex]
     }
@@ -45,13 +46,18 @@ final class MusicPlayerState: ObservableObject {
     }
     
     private let audioService: AVAudioPlayerService
+    private let mediaSessionService: MPMediaSessionService
     private var cancellables: Set<AnyCancellable> = []
     
-    init(audioService: AVAudioPlayerService) {
+    init(audioService: AVAudioPlayerService, mediaSessionService: MPMediaSessionService) {
         self.audioService = audioService
         self.audioService.setup()
         
+        self.mediaSessionService = mediaSessionService
+        self.mediaSessionService.setup()
+        
         self.bindingAudioService()
+        self.bindingMediaSessionServcie()
     }
     
     private func bindingAudioService() {
@@ -66,8 +72,6 @@ final class MusicPlayerState: ObservableObject {
                     self.nextTrack()
                 case .progressUpdated(let time):
                     self.currentTime = time
-                case .playbackStateChanged(let isPlaying):
-                    self.isPlaying = isPlaying
                 case .error(let error):
                     print("\(error)")
                 }
@@ -75,6 +79,26 @@ final class MusicPlayerState: ObservableObject {
             .store(in: &self.cancellables)
     }
     
+    private func bindingMediaSessionServcie() {
+        self.mediaSessionService
+            .action
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] action in
+                guard let self = self else { return }
+                
+                switch action {
+                case .play, .pause:
+                    self.togglePlay()
+                case .previous:
+                    break
+                case .next:
+                    self.nextTrack()
+                case .seek(time: let time):
+                    break
+                }
+            }
+            .store(in: &self.cancellables)
+    }
     
     func playAlbum(_ album: Album, playMode: PlayMode) {
         switch playMode {
@@ -96,7 +120,9 @@ final class MusicPlayerState: ObservableObject {
     private func playTrack() {
         guard let currentTrack else { return }
         
+        self.isPlaying = true
         self.audioService.play(url: currentTrack.url)
+        self.updatePlayingInfo()
     }
     
     func nextTrack() {
@@ -125,5 +151,22 @@ final class MusicPlayerState: ObservableObject {
         } else {
             self.audioService.resume()
         }
+        
+        self.isPlaying.toggle()
+        self.updatePlayingInfo()
+    }
+    
+    private func updatePlayingInfo() {
+        guard let currentAlbum, let currentTrack else { return }
+        
+        self.mediaSessionService.updateNowPlayingInfo(
+            title: currentTrack.title,
+            artist: currentAlbum.artistName,
+            albumName: currentAlbum.name,
+            artwork: currentAlbum.artworkImage,
+            duration: self.duration,
+            currentTime: self.currentTime,
+            isPlaying: self.isPlaying
+        )
     }
 }

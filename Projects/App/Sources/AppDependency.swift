@@ -12,11 +12,13 @@ import MusicServiceImplement
 final class AppDependency {
     private let musicService: MusicService
     private let audioService: AVAudioPlayerService
+    private let mediaSessionService: MPMediaSessionService
     
     init() {
         let storage = AudioStorage()
         self.musicService = MusicServiceImplement(storage: storage)
         self.audioService = AVAudioPlayerService()
+        self.mediaSessionService = MPMediaSessionService()
     }
     
     func makeLibraryViewModel() -> LibraryViewModel {
@@ -24,6 +26,6 @@ final class AppDependency {
     }
     
     func makeMusicPlayerState() -> MusicPlayerState {
-        MusicPlayerState(audioService: self.audioService)
+        MusicPlayerState(audioService: self.audioService, mediaSessionService: mediaSessionService)
     }
 }
