@@ -17,8 +17,8 @@ final class AppDependency {
     init() {
         let storage = AudioStorage()
         self.musicService = MusicServiceImplement(storage: storage)
-        self.audioService = AVAudioPlayerService()
-        self.mediaSessionService = MPMediaSessionService()
+        self.audioService = AVAudioPlayerServiceImpl()
+        self.mediaSessionService = MPMediaSessionServiceImpl()
     }
     
     func makeLibraryViewModel() -> LibraryViewModel {
