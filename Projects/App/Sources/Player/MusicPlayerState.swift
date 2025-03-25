@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import AVFoundation
+import Combine
 
 final class MusicPlayerState: ObservableObject {
     
@@ -41,11 +41,40 @@ final class MusicPlayerState: ObservableObject {
     }
     
     private var duration: TimeInterval {
-        self.player?.duration ?? 0
+        self.audioService.duration
     }
+    
+    private let audioService: AVAudioPlayerService
+    private var cancellables: Set<AnyCancellable> = []
+    
+    init(audioService: AVAudioPlayerService) {
+        self.audioService = audioService
+        self.audioService.setup()
         
-    private var player: AVAudioPlayer?
-    private var timer: Timer?
+        self.bindingAudioService()
+    }
+    
+    private func bindingAudioService() {
+        self.audioService
+            .action
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] action in
+                guard let self = self else { return }
+                
+                switch action {
+                case .playbackFinished:
+                    self.nextTrack()
+                case .progressUpdated(let time):
+                    self.currentTime = time
+                case .playbackStateChanged(let isPlaying):
+                    self.isPlaying = isPlaying
+                case .error(let error):
+                    print("\(error)")
+                }
+            }
+            .store(in: &self.cancellables)
+    }
+    
     
     func playAlbum(_ album: Album, playMode: PlayMode) {
         switch playMode {
@@ -64,45 +93,19 @@ final class MusicPlayerState: ObservableObject {
         self.playTrack()
     }
 
-    func playTrack() {
+    private func playTrack() {
         guard let currentTrack else { return }
         
-        self.player?.stop()
-        self.timer?.invalidate()
-        
-        do {
-            try AVAudioSession.sharedInstance().setCategory(.playback)
-            try AVAudioSession.sharedInstance().setActive(true)
-            
-            self.player = try AVAudioPlayer(contentsOf: currentTrack.url)
-            self.player?.prepareToPlay()
-            self.player?.play()
-            self.isPlaying = true
-            
-            self.timer = Timer.scheduledTimer(
-                withTimeInterval: 0.5,
-                repeats: true
-            ) { [weak self] _ in
-                guard let self, let player else { return }
-                
-                let currentTime = player.currentTime
-                self.currentTime = currentTime
-                
-                if currentTime >= player.duration {
-                    self.nextTrack()
-                }
-            }
-        } catch {
-            
-        }
+        self.audioService.play(url: currentTrack.url)
     }
     
-    private func nextTrack() {
+    func nextTrack() {
         let nextTrackIndex = self.trackIndex + 1
         let trackCount = self.currentAlbum?.tracks.count ?? 0
         
         guard nextTrackIndex < trackCount else {
-            self.player?.stop()
+            self.audioService.stop()
+            isPlaying = false
             return
         }
         
@@ -118,11 +121,9 @@ final class MusicPlayerState: ObservableObject {
     
     func togglePlay() {
         if self.isPlaying {
-            self.player?.pause()
+            self.audioService.pause()
         } else {
-            self.player?.play()
+            self.audioService.resume()
         }
-        
-        self.isPlaying.toggle()
     }
 }

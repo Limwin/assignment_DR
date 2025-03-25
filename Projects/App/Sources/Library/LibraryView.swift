@@ -22,17 +22,13 @@ struct LibraryView: View {
     ]
     
     var body: some View {
-        ZStack(alignment: .bottom) {
-            NavigationView {
-                self.contentView
-                    .navigationTitle("음악 라이브러리")
-                    .background(Color(.systemGroupedBackground))
-                    .onAppearOnce {
-                        self.viewModel.fetchAlbums()
-                    }
-            }
-            
-            self.playerView
+        NavigationView {
+            self.contentView
+                .navigationTitle("음악 라이브러리")
+                .background(Color(.systemGroupedBackground))
+                .onAppearOnce {
+                    self.viewModel.fetchAlbums()
+                }
         }
     }
     
@@ -52,13 +48,6 @@ struct LibraryView: View {
             }
             .padding(.horizontal)
         }
-    }
-    
-    @ViewBuilder
-    private var playerView: some View {
-        MusicPlayerView()
-            .background(.white)
-            .transition(.move(edge: .bottom))
     }
 }
 

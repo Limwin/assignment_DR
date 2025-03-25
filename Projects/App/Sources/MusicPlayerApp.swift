@@ -3,12 +3,21 @@ import SwiftUI
 @main
 struct MusicPlayerApp: App {
     private let appDependency = AppDependency()
-    private var musicPlayerState = MusicPlayerState()
     
     var body: some Scene {
         WindowGroup {
-            LibraryView(viewModel: self.appDependency.makeLibraryViewModel())
-                .environmentObject(self.musicPlayerState)
+            ZStack(alignment: .bottom) {
+                LibraryView(viewModel: self.appDependency.makeLibraryViewModel())
+                self.playerView
+            }
+            .environmentObject(self.appDependency.makeMusicPlayerState())
         }
+    }
+    
+    @ViewBuilder
+    private var playerView: some View {
+        MusicPlayerView()
+            .background(.white)
+            .transition(.move(edge: .bottom))
     }
 }

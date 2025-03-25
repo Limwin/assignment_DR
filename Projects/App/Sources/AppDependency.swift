@@ -10,14 +10,20 @@ import MusicServiceInterface
 import MusicServiceImplement
 
 final class AppDependency {
-    let musicService: MusicService
+    private let musicService: MusicService
+    private let audioService: AVAudioPlayerService
     
     init() {
         let storage = AudioStorage()
         self.musicService = MusicServiceImplement(storage: storage)
+        self.audioService = AVAudioPlayerService()
     }
     
     func makeLibraryViewModel() -> LibraryViewModel {
         return LibraryViewModel(service: self.musicService)
+    }
+    
+    func makeMusicPlayerState() -> MusicPlayerState {
+        MusicPlayerState(audioService: self.audioService)
     }
 }
