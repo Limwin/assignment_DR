@@ -24,13 +24,8 @@ struct MusicPlayerView: View {
                     self.miniPlayerView
                 }
             }
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(.ultraThinMaterial)
-                    .edgesIgnoringSafeArea(.bottom)
-            )
         }
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: self.isExpanded)
+        .animation(.easeInOut, value: self.isExpanded)
         .isHidden(!self.playerState.showMiniPlayer)
     }
     
@@ -69,6 +64,11 @@ struct MusicPlayerView: View {
                 self.isExpanded = true
             }
         }
+        .background(
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .edgesIgnoringSafeArea(.bottom)
+        )
     }
     
     private var expandedPlayerView: some View {
@@ -119,18 +119,23 @@ struct MusicPlayerView: View {
                 
                 Slider(
                     value: self.$volume,
-                    in: 0...1,
-                    onEditingChanged: { editing in
-                        self.playerState.setVolume(self.volume)
-                    }
+                    in: 0...1
                 )
                 .tint(.white)
+                
+                MPVolumeSlider(volume: self.$volume, tintColor: .white)
+                    .frame(size: 0)
                 
                 Image(systemName: "speaker.wave.3.fill")
             }
         }
         .padding(.horizontal, 36)
         .padding(.bottom, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(.ultraThinMaterial)
+                .edgesIgnoringSafeArea(.bottom)
+        )
     }
     
     private var progressBarView: some View {
@@ -192,19 +197,19 @@ struct MusicPlayerView: View {
 
 #Preview {
     var state = MusicPlayerState(
-        audioService: DummyAVAudioPlayerService(),
+        mediaService: DummyMediaPlayerService(),
         mediaSessionService: DummyMPMediaSessionService()
     )
     
     let album = Album(
         name: "앨범명1",
+        artistName: "아티스트1",
         artworkImage: nil,
         tracks: [
             Track(
                 title: "트랙1",
-                artist: "아티스트1",
                 duration: .zero,
-                url: URL(string: "https://www.apple.com")!
+                mediaItem: .init()
             )
         ]
     )

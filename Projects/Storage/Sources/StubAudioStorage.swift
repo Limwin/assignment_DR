@@ -1,23 +1,25 @@
 //
-//  StubAudioStorage.swift
+//  StubMediaStorage.swift
 //  Storage
 //
 //  Created by seunghyeok lim on 3/23/25.
 //
 
-import Foundation
+import UIKit
 
-final class StubAudioStorage: AudioStorageType {
-    func getAllAudioMetadata() async -> [AudioMetadata] {
-        let data = AudioMetadata(
-            albumName: "테스트 앨범",
-            title: "테스트 제목",
-            artist: "아티스트 명",
-            artworkData: nil,
-            duration: .zero,
-            url: URL(string: "")!
+final class StubMediaStorage: MediaStorageType {
+    func requestAuthorization() async -> Bool {
+        true
+    }
+    
+    func getAllMediaAlbums() async -> [MediaAlbumItem] {
+        let item = MediaAlbumItem(
+            title: "Album Title",
+            artist: "Artist Name",
+            artwork: UIImage(),
+            tracks: []
         )
         
-        return [data]
+        return [item]
     }
 }

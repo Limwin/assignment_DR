@@ -1,60 +1,43 @@
 //
-//  AVAudioPlayerService.swift
+//  MediaPlayerServiceImpl.swift
 //  MusicPlayer
 //
 //  Created by seunghyeok lim on 3/25/25.
 //
 
-import AVFoundation
+import MediaPlayer
 import Combine
 
-final class AVAudioPlayerServiceImpl: AVAudioPlayerService {
+final class MediaPlayerServiceImpl: MediaPlayerService {
     
-    var action: AnyPublisher<AVAudioPlayerServiceAction, Never> {
+    var action: AnyPublisher<MediaPlayerServiceAction, Never> {
         self.actionSubject.eraseToAnyPublisher()
     }
-    private let actionSubject = PassthroughSubject<AVAudioPlayerServiceAction, Never>()
+    private let actionSubject = PassthroughSubject<MediaPlayerServiceAction, Never>()
     
     var currentTime: TimeInterval {
-        self.player?.currentTime ?? 0
+        self.player.currentPlaybackTime
     }
     
     var duration: TimeInterval {
-        self.player?.duration ?? 0
+        self.player.nowPlayingItem?.playbackDuration ?? 0
     }
     
     var isPlaying: Bool {
-        self.player?.isPlaying ?? false
+        self.player.playbackState == .playing
     }
     
-    private var player: AVAudioPlayer?
+    private let player = MPMusicPlayerController.applicationMusicPlayer
+    private let playingInfoCenter = MPNowPlayingInfoCenter.default()
     private var progressTimer: Timer?
     private var cancellables = Set<AnyCancellable>()
     
-    func setup() {
+    @MainActor
+    func play(mediaItem: MPMediaItem) async {
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-            try AVAudioSession.sharedInstance().setActive(true)
-            
-            NotificationCenter.default
-                .publisher(for: AVAudioSession.routeChangeNotification)
-                .sink { [weak self] notification in
-                    self?.handleRouteChange(notification: notification)
-                }
-                .store(in: &self.cancellables)
-            
-        } catch {
-            self.actionSubject.send(.error(error))
-        }
-    }
-    
-    func play(url: URL) {
-        self.stop()
-        
-        do {
-            self.player = try AVAudioPlayer(contentsOf: url)
-            self.player?.prepareToPlay()
-            self.player?.play()
+            self.player.setQueue(with: .init(items: [mediaItem]))
+            try await self.player.prepareToPlay()
+            self.player.play()
             
             self.startProgressTimer()
         } catch {
@@ -63,27 +46,30 @@ final class AVAudioPlayerServiceImpl: AVAudioPlayerService {
     }
     
     func pause() {
-        self.player?.pause()
+        self.player.pause()
         self.progressTimer?.invalidate()
     }
     
     func resume() {
-        self.player?.play()
+        self.player.play()
         self.startProgressTimer()
     }
     
     func stop() {
-        self.player?.stop()
+        self.player.stop()
         self.progressTimer?.invalidate()
-        self.player = nil
     }
     
     func setVolume(_ volume: Float) {
-        self.player?.setVolume(volume, fadeDuration: .zero)
+        
     }
     
     func seek(to time: TimeInterval) {
-        self.player?.play(atTime: time)
+        guard self.player.nowPlayingItem != nil else { return }
+        
+        var nowPlayingInfo = self.playingInfoCenter.nowPlayingInfo ?? [:]
+        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = time
+        self.playingInfoCenter.nowPlayingInfo = nowPlayingInfo
     }
     
     private func startProgressTimer() {
@@ -93,12 +79,11 @@ final class AVAudioPlayerServiceImpl: AVAudioPlayerService {
             withTimeInterval: 0.5,
             repeats: true
         ) { [weak self] _ in
-            guard let self = self, let player = self.player else { return }
-            
-            let currentTime = player.currentTime
+            guard let self else { return }
+            let currentTime = self.player.currentPlaybackTime
             self.actionSubject.send(.progressUpdated(currentTime))
             
-            if currentTime >= player.duration {
+            if currentTime >= self.duration {
                 self.actionSubject.send(.playbackFinished)
             }
         }
@@ -114,11 +99,11 @@ final class AVAudioPlayerServiceImpl: AVAudioPlayerService {
         switch reason {
         case .oldDeviceUnavailable:
             if self.isPlaying {
-                self.player?.pause()
+                self.player.pause()
             }
         case .newDeviceAvailable:
             if !self.isPlaying {
-                self.player?.play()
+                self.player.play()
             }
             
         default:
@@ -128,9 +113,7 @@ final class AVAudioPlayerServiceImpl: AVAudioPlayerService {
     
     deinit {
         self.progressTimer?.invalidate()
-        self.player?.stop()
+        self.player.stop()
         self.cancellables.removeAll()
-        
-        try? AVAudioSession.sharedInstance().setActive(false)
     }
 }

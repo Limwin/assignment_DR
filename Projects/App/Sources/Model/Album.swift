@@ -11,27 +11,18 @@ import MusicServiceInterface
 
 struct Album: Hashable {
     let name: String
+    let artistName: String
     let artworkImage: UIImage?
     let tracks: [Track]
-    
-    var artistName: String {
-        self.tracks.first?.artist ?? ""
-    }
 }
 
 extension MusicServiceInterface.Album {
     func toDomain() -> Album {
-        let artworkImage: UIImage? = if let artwork {
-            UIImage(data: artwork)
-        } else {
-            nil
-        }
-        
-        return Album(
-            name: self.name,
-            artworkImage: artworkImage,
-            tracks: tracks.map {
-                $0.toDomain()
+        Album(
+            name: self.title,
+            artistName: self.artistName,
+            artworkImage: self.artwork,
+            tracks: self.tracks.map { $0.toDomain()
             }
         )
     }

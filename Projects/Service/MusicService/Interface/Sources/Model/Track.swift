@@ -5,18 +5,25 @@
 //  Created by seunghyeok lim on 3/23/25.
 //
 
-import CoreMedia
+import Foundation
+
+import Storage
+import MediaPlayer
 
 public struct Track {
     public let title: String
-    public let artist: String
-    public let duration: CMTime
-    public let url: URL
+    public let duration: TimeInterval
+    public let mediaItem: MPMediaItem
     
-    public init(title: String, artist: String, duration: CMTime, url: URL) {
+    public init(title: String, duration: TimeInterval, mediaItem: MPMediaItem) {
         self.title = title
-        self.artist = artist
         self.duration = duration
-        self.url = url
+        self.mediaItem = mediaItem
+    }
+}
+
+extension MediaTrackItem {
+    func toTrack() -> Track {
+        Track(title: self.title, duration: self.duration, mediaItem: self.media)
     }
 }

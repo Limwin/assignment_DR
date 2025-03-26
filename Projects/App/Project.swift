@@ -19,7 +19,8 @@ let project = Project(
                         "UIImageName": "",
                     ],
                     "UIUserInterfaceStyle": "Light",
-                    "UIBackgroundModes": ["audio"]
+                    "UIBackgroundModes": ["audio"],
+                    "NSAppleMusicUsageDescription": "이 앱은 Apple Music의 음악을 재생합니다."
                 ]
             ),
             sources: [.glob(.relativeToManifest("Sources/**"))],

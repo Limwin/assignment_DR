@@ -8,16 +8,16 @@
 import CoreMedia
 
 import MusicServiceInterface
+import MediaPlayer
 
 struct Track: Hashable {
     let title: String
-    let artist: String
-    let duration: CMTime
-    let url: URL
+    let duration: TimeInterval
+    let mediaItem: MPMediaItem
 }
 
 extension MusicServiceInterface.Track {
     func toDomain() -> Track {
-        Track(title: self.title, artist: self.artist, duration: self.duration, url: self.url)
+        Track(title: self.title, duration: self.duration, mediaItem: self.mediaItem)
     }
 }

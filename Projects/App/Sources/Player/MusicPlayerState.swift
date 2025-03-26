@@ -43,16 +43,17 @@ final class MusicPlayerState: ObservableObject {
     }
     
     private var duration: TimeInterval {
-        self.audioService.duration
+        self.mediaService.duration
     }
     
-    private let audioService: AVAudioPlayerService
+    private let mediaService: MediaPlayerService
     private let mediaSessionService: MPMediaSessionService
+    
+    private var playTask: Task<Void, Never>? = nil
     private var cancellables: Set<AnyCancellable> = []
     
-    init(audioService: AVAudioPlayerService, mediaSessionService: MPMediaSessionService) {
-        self.audioService = audioService
-        self.audioService.setup()
+    init(mediaService: MediaPlayerService, mediaSessionService: MPMediaSessionService) {
+        self.mediaService = mediaService
         
         self.mediaSessionService = mediaSessionService
         self.mediaSessionService.setup()
@@ -62,7 +63,7 @@ final class MusicPlayerState: ObservableObject {
     }
     
     private func bindingAudioService() {
-        self.audioService
+        self.mediaService
             .action
             .receive(on: DispatchQueue.main)
             .sink { [weak self] action in
@@ -111,35 +112,42 @@ final class MusicPlayerState: ObservableObject {
             let shuffledTracks = album.tracks.shuffled()
             self.currentAlbum = Album(
                 name: album.name,
+                artistName: album.artistName,
                 artworkImage: album.artworkImage,
                 tracks: shuffledTracks
             )
         }
         
         self.showMiniPlayer = true
-        self.playTrack()
+        self.playTask = Task {
+            await self.playTrack()
+        }
     }
 
-    private func playTrack() {
+    @MainActor
+    private func playTrack() async {
         guard let currentTrack else { return }
+        self.playTask?.cancel()
         
         self.isPlaying = true
-        self.audioService.play(url: currentTrack.url)
+        await self.mediaService.play(mediaItem: currentTrack.mediaItem)
         self.updatePlayingInfo()
     }
     
     func previousTrack() {
         if currentTime >= 5.0 {
-            self.audioService.seek(to: 0)
+            self.mediaService.seek(to: 0)
             return
         }
         
         let previousTrackIndex = self.trackIndex - 1
         if previousTrackIndex < 0 {
-            self.audioService.seek(to: 0)
+            self.mediaService.seek(to: 0)
         } else {
             self.trackIndex = previousTrackIndex
-            self.playTrack()
+            self.playTask = Task {
+                await self.playTrack()
+            }
         }
     }
     
@@ -148,13 +156,15 @@ final class MusicPlayerState: ObservableObject {
         let trackCount = self.currentAlbum?.tracks.count ?? 0
         
         guard nextTrackIndex < trackCount else {
-            self.audioService.stop()
+            self.mediaService.stop()
             isPlaying = false
             return
         }
         
         self.trackIndex = nextTrackIndex
-        self.playTrack()
+        self.playTask = Task {
+            await self.playTrack()
+        }
     }
     
     func progressWidth(totalWidth: CGFloat) -> CGFloat {
@@ -165,9 +175,9 @@ final class MusicPlayerState: ObservableObject {
     
     func togglePlay() {
         if self.isPlaying {
-            self.audioService.pause()
+            self.mediaService.pause()
         } else {
-            self.audioService.resume()
+            self.mediaService.resume()
         }
         
         self.isPlaying.toggle()
@@ -175,7 +185,7 @@ final class MusicPlayerState: ObservableObject {
     }
     
     func setVolume(_ volume: Float) {
-        self.audioService.setVolume(volume)
+        self.mediaService.setVolume(volume)
     }
     
     private func updatePlayingInfo() {
