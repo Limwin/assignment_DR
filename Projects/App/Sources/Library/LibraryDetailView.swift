@@ -29,6 +29,12 @@ struct LibraryDetailView: View {
                         .font(.system(size: 15))
                     Spacer()
                 }
+                .onTap {
+                    self.musicPlayerState.playAlbum(
+                        self.viewModel.album,
+                        playMode: .trackIn(track)
+                    )
+                }
             }
         }
     }

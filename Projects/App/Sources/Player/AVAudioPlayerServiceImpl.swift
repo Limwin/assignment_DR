@@ -78,6 +78,10 @@ final class AVAudioPlayerServiceImpl: AVAudioPlayerService {
         self.player = nil
     }
     
+    func setVolume(_ volume: Float) {
+        self.player?.setVolume(volume, fadeDuration: .zero)
+    }
+    
     private func startProgressTimer() {
         self.progressTimer?.invalidate()
         

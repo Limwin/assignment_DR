@@ -14,6 +14,7 @@ public extension View {
         Button(action: action) {
             self
         }
+        .foregroundColor(.black)
     }
     
     func frame(size: CGFloat) -> some View {

@@ -11,7 +11,8 @@ import Combine
 final class MusicPlayerState: ObservableObject {
     
     enum PlayMode {
-        case sequence(startAt: Int = 0)
+        case sequence
+        case trackIn(Track)
         case random
     }
     
@@ -93,7 +94,7 @@ final class MusicPlayerState: ObservableObject {
                     break
                 case .next:
                     self.nextTrack()
-                case .seek(time: let time):
+                case .seek(let time):
                     break
                 }
             }
@@ -102,9 +103,12 @@ final class MusicPlayerState: ObservableObject {
     
     func playAlbum(_ album: Album, playMode: PlayMode) {
         switch playMode {
-        case .sequence(let startAt):
+        case .sequence:
             self.currentAlbum = album
-            self.trackIndex = startAt
+        case .trackIn(let track):
+            self.currentAlbum = album
+            let trackIndex = album.tracks.firstIndex { $0.title == track.title } ?? 0
+            self.trackIndex = trackIndex
         case .random:
             let shuffledTracks = album.tracks.shuffled()
             self.currentAlbum = Album(
@@ -124,6 +128,10 @@ final class MusicPlayerState: ObservableObject {
         self.isPlaying = true
         self.audioService.play(url: currentTrack.url)
         self.updatePlayingInfo()
+    }
+    
+    func previousTrack() {
+        
     }
     
     func nextTrack() {
@@ -155,6 +163,10 @@ final class MusicPlayerState: ObservableObject {
         
         self.isPlaying.toggle()
         self.updatePlayingInfo()
+    }
+    
+    func setVolume(_ volume: Float) {
+        self.audioService.setVolume(volume)
     }
     
     private func updatePlayingInfo() {

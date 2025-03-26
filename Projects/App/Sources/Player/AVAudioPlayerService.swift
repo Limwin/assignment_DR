@@ -28,4 +28,27 @@ protocol AVAudioPlayerService: AnyObject {
     func pause()
     func resume()
     func stop()
+    func setVolume(_ volume: Float)
+}
+
+final class DummyAVAudioPlayerService: AVAudioPlayerService {
+    var currentTime: TimeInterval = 0
+    var duration: TimeInterval = 0
+    var isPlaying: Bool = false
+    
+    func setup() {}
+    
+    func play(url: URL) {}
+    
+    func pause() {}
+    
+    func resume() {}
+    
+    func stop() {}
+    
+    func setVolume(_ volume: Float) {}
+    
+    var action: AnyPublisher<AVAudioPlayerServiceAction, Never> {
+        return Empty().eraseToAnyPublisher()
+    }
 }

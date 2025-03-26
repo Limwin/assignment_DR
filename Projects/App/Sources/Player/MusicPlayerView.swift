@@ -10,16 +10,126 @@ import CommonExtension
 
 struct MusicPlayerView: View {
     @EnvironmentObject private var playerState: MusicPlayerState
+    @State private var isExpanded = false
+    @State private var volume: Float = 0.3
     
     var body: some View {
+        ZStack(alignment: .bottom) {
+            if self.isExpanded {
+                Color.black
+                    .opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation {
+                            self.isExpanded = false
+                        }
+                    }
+                    .transition(.opacity)
+            }
+            
+            VStack {
+                if self.isExpanded {
+                    self.expandedPlayerView
+                } else {
+                    self.miniPlayerView
+                }
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(.ultraThinMaterial)
+                    .edgesIgnoringSafeArea(.bottom)
+            )
+        }
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: self.isExpanded)
+    }
+    
+    private var miniPlayerView: some View {
         VStack {
-            if self.playerState.showMiniPlayer {
-                self.progressBarView
-                self.contentView
-            } else {
-                EmptyView()
+            self.progressBarView
+            HStack {
+                self.playpauseButton
+                
+                Spacer()
+                
+                self.trackInfoView
+                
+                Spacer()
+                
+                self.artworkView
+            }
+            .padding(20)
+            .compositingGroup()
+            .onTapGesture {
+                self.isExpanded = true
             }
         }
+    }
+    
+    private var expandedPlayerView: some View {
+        VStack(spacing: 32) {
+            HStack {
+                Spacer()
+                Image(systemName: "chevron.down.circle.fill")
+                    .resizable()
+                    .frame(size: 24)
+                    .foregroundStyle(.gray)
+                    .padding(.top, 20)
+                    .padding(.trailing, -16)
+            }
+            .onTapGesture {
+                self.isExpanded = false
+            }
+            
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.gray.opacity(0.7))
+                .aspectRatio(1, contentMode: .fit)
+                .overlay(
+                    self.artworkView
+                )
+            
+            VStack(spacing: 8) {
+                Text(self.playerState.albumName)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                
+                Text(self.playerState.trackNameWithArtist)
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+            }
+            
+            self.progressBarView
+            
+            HStack(spacing: 40) {
+                Image(systemName: "backward.fill")
+                    .onTap {
+                        self.playerState.previousTrack()
+                    }
+                
+                self.playpauseButton
+                
+                Image(systemName: "forward.fill")
+                    .onTap {
+                        self.playerState.nextTrack()
+                    }
+            }
+            
+            HStack {
+                Image(systemName: "speaker.fill")
+                
+                Slider(
+                    value: self.$volume,
+                    in: 0...1,
+                    onEditingChanged: { editing in
+                        self.playerState.setVolume(self.volume)
+                    }
+                )
+                .tint(.white)
+                
+                Image(systemName: "speaker.wave.3.fill")
+            }
+        }
+        .padding(.horizontal, 36)
+        .padding(.bottom, 20)
     }
     
     private var progressBarView: some View {
@@ -40,34 +150,21 @@ struct MusicPlayerView: View {
         .frame(height: 3)
     }
     
-    private var contentView: some View {
-        HStack {
-            self.playpauseButton
-                .foregroundStyle(.black)
-                .onTap {
-                    self.playerState.togglePlay()
-                }
-            
-            Spacer()
-            
-            self.trackInfoView
-            
-            Spacer()
-            
-            self.artworkView
-        }.padding(16)
-    }
-    
     @ViewBuilder
     private var playpauseButton: some View {
-        if self.playerState.isPlaying {
-            Image(systemName: "pause.fill")
-                .resizable()
-                .frame(size: 24)
-        } else {
-            Image(systemName: "play.fill")
-                .resizable()
-                .frame(size: 24)
+        Group {
+            if self.playerState.isPlaying {
+                Image(systemName: "pause.fill")
+                    .resizable()
+                    .frame(size: 24)
+            } else {
+                Image(systemName: "play.fill")
+                    .resizable()
+                    .frame(size: 24)
+            }
+        }
+        .onTap {
+            self.playerState.togglePlay()
         }
     }
     
@@ -88,6 +185,37 @@ struct MusicPlayerView: View {
                 .aspectRatio(contentMode: .fit)
                 .cornerRadius(8)
                 .frame(size: 44)
+        } else {
+            Image(systemName: "music.note")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(size: 24)
+                .foregroundColor(.black.opacity(0.6))
         }
     }
+}
+
+#Preview {
+    var state = MusicPlayerState(
+        audioService: DummyAVAudioPlayerService(),
+        mediaSessionService: DummyMPMediaSessionService()
+    )
+    
+    let album = Album(
+        name: "앨범명1",
+        artworkImage: nil,
+        tracks: [
+            Track(
+                title: "트랙1",
+                artist: "아티스트1",
+                duration: .zero,
+                url: URL(string: "https://www.apple.com")!
+            )
+        ]
+    )
+    
+    state.playAlbum(album, playMode: .sequence)
+    
+    return MusicPlayerView()
+        .environmentObject(state)
 }

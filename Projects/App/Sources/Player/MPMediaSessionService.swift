@@ -30,3 +30,21 @@ protocol MPMediaSessionService: AnyObject {
         isPlaying: Bool
     )
 }
+
+final class DummyMPMediaSessionService: MPMediaSessionService {
+    func setup() { }
+    
+    func updateNowPlayingInfo(
+        title: String,
+        artist: String,
+        albumName: String,
+        artwork: UIImage?,
+        duration: TimeInterval,
+        currentTime: TimeInterval,
+        isPlaying: Bool
+    ) { }
+    
+    var action: AnyPublisher<MPMediaSessionServiceAction, Never> {
+        Empty().eraseToAnyPublisher()
+    }
+}
