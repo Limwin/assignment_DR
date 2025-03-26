@@ -29,6 +29,7 @@ protocol AVAudioPlayerService: AnyObject {
     func resume()
     func stop()
     func setVolume(_ volume: Float)
+    func seek(to time: TimeInterval)
 }
 
 final class DummyAVAudioPlayerService: AVAudioPlayerService {
@@ -47,6 +48,8 @@ final class DummyAVAudioPlayerService: AVAudioPlayerService {
     func stop() {}
     
     func setVolume(_ volume: Float) {}
+    
+    func seek(to time: TimeInterval) {}
     
     var action: AnyPublisher<AVAudioPlayerServiceAction, Never> {
         return Empty().eraseToAnyPublisher()

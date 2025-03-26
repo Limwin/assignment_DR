@@ -91,11 +91,9 @@ final class MusicPlayerState: ObservableObject {
                 case .play, .pause:
                     self.togglePlay()
                 case .previous:
-                    break
+                    self.previousTrack()
                 case .next:
                     self.nextTrack()
-                case .seek(let time):
-                    break
                 }
             }
             .store(in: &self.cancellables)
@@ -131,7 +129,18 @@ final class MusicPlayerState: ObservableObject {
     }
     
     func previousTrack() {
+        if currentTime >= 5.0 {
+            self.audioService.seek(to: 0)
+            return
+        }
         
+        let previousTrackIndex = self.trackIndex - 1
+        if previousTrackIndex < 0 {
+            self.audioService.seek(to: 0)
+        } else {
+            self.trackIndex = previousTrackIndex
+            self.playTrack()
+        }
     }
     
     func nextTrack() {
