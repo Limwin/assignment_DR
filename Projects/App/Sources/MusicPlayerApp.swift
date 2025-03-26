@@ -17,7 +17,6 @@ struct MusicPlayerApp: App {
     @ViewBuilder
     private var playerView: some View {
         MusicPlayerView()
-            .background(.white)
             .transition(.move(edge: .bottom))
     }
 }

@@ -15,17 +15,7 @@ struct MusicPlayerView: View {
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            if self.isExpanded {
-                Color.black
-                    .opacity(0.3)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation {
-                            self.isExpanded = false
-                        }
-                    }
-                    .transition(.opacity)
-            }
+            self.dimmedView
             
             VStack {
                 if self.isExpanded {
@@ -41,6 +31,22 @@ struct MusicPlayerView: View {
             )
         }
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: self.isExpanded)
+        .isHidden(!self.playerState.showMiniPlayer)
+    }
+    
+    @ViewBuilder
+    private var dimmedView: some View {
+        if self.isExpanded {
+            Color.black
+                .opacity(0.3)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    withAnimation {
+                        self.isExpanded = false
+                    }
+                }
+                .transition(.opacity)
+        }
     }
     
     private var miniPlayerView: some View {
@@ -55,7 +61,7 @@ struct MusicPlayerView: View {
                 
                 Spacer()
                 
-                self.artworkView
+                AlbumImageView(cornerRadius: 12, size: 50, content: { self.artworkView })
             }
             .padding(20)
             .compositingGroup()
@@ -80,12 +86,7 @@ struct MusicPlayerView: View {
                 self.isExpanded = false
             }
             
-            RoundedRectangle(cornerRadius: 12)
-                .fill(.gray.opacity(0.7))
-                .aspectRatio(1, contentMode: .fit)
-                .overlay(
-                    self.artworkView
-                )
+            AlbumImageView(cornerRadius: 12, content: { self.artworkView })
             
             VStack(spacing: 8) {
                 Text(self.playerState.albumName)
@@ -182,14 +183,8 @@ struct MusicPlayerView: View {
         if let artwork = self.playerState.artworkImage {
             Image(uiImage: artwork)
                 .resizable()
-                .aspectRatio(contentMode: .fit)
-                .cornerRadius(8)
-                .frame(size: 44)
         } else {
             Image(systemName: "music.note")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(size: 24)
                 .foregroundColor(.black.opacity(0.6))
         }
     }
