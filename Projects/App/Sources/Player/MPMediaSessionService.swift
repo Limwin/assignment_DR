@@ -13,7 +13,6 @@ enum MPMediaSessionServiceAction {
     case pause
     case next
     case previous
-    case seek(time: TimeInterval)
 }
 
 protocol MPMediaSessionService: AnyObject {

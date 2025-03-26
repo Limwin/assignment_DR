@@ -43,15 +43,6 @@ final class MPMediaSessionServiceImpl: MPMediaSessionService {
             self?.actionSubject.send(.previous)
             return .success
         }
-        
-        commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
-            guard let positionEvent = event as? MPChangePlaybackPositionCommandEvent else {
-                return .commandFailed
-            }
-            
-            self?.actionSubject.send(.seek(time: positionEvent.positionTime))
-            return .success
-        }
     }
     
     func updateNowPlayingInfo(
