@@ -8,6 +8,9 @@
 import SwiftUI
 import CommonExtension
 
+import MediaPlayerServiceImplement
+import MediaSessionServiceImplement
+
 struct MusicPlayerView: View {
     @EnvironmentObject private var playerState: MusicPlayerState
     @State private var isExpanded = false

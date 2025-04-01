@@ -8,6 +8,9 @@
 import UIKit
 import Combine
 
+import MediaSessionServiceInterface
+import MediaPlayerServiceInterface
+
 final class MusicPlayerState: ObservableObject {
     
     enum PlayMode {
@@ -49,7 +52,6 @@ final class MusicPlayerState: ObservableObject {
     private let mediaService: MediaPlayerService
     private let mediaSessionService: MPMediaSessionService
     
-    private var playTask: Task<Void, Never>? = nil
     private var cancellables: Set<AnyCancellable> = []
     
     init(mediaService: MediaPlayerService, mediaSessionService: MPMediaSessionService) {
@@ -74,6 +76,10 @@ final class MusicPlayerState: ObservableObject {
                     self.nextTrack()
                 case .progressUpdated(let time):
                     self.currentTime = time
+                case .play:
+                    self.isPlaying = true
+                case .pause:
+                    self.isPlaying = false
                 case .error(let error):
                     print("\(error)")
                 }
@@ -119,7 +125,7 @@ final class MusicPlayerState: ObservableObject {
         }
         
         self.showMiniPlayer = true
-        self.playTask = Task {
+        Task {
             await self.playTrack()
         }
     }
@@ -127,7 +133,6 @@ final class MusicPlayerState: ObservableObject {
     @MainActor
     private func playTrack() async {
         guard let currentTrack else { return }
-        self.playTask?.cancel()
         
         self.isPlaying = true
         await self.mediaService.play(mediaItem: currentTrack.mediaItem)
@@ -145,7 +150,7 @@ final class MusicPlayerState: ObservableObject {
             self.mediaService.seek(to: 0)
         } else {
             self.trackIndex = previousTrackIndex
-            self.playTask = Task {
+            Task {
                 await self.playTrack()
             }
         }
@@ -157,12 +162,12 @@ final class MusicPlayerState: ObservableObject {
         
         guard nextTrackIndex < trackCount else {
             self.mediaService.stop()
-            isPlaying = false
+            self.isPlaying = false
             return
         }
         
         self.trackIndex = nextTrackIndex
-        self.playTask = Task {
+        Task {
             await self.playTrack()
         }
     }
@@ -182,10 +187,6 @@ final class MusicPlayerState: ObservableObject {
         
         self.isPlaying.toggle()
         self.updatePlayingInfo()
-    }
-    
-    func setVolume(_ volume: Float) {
-        self.mediaService.setVolume(volume)
     }
     
     private func updatePlayingInfo() {

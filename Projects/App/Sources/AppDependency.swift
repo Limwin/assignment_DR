@@ -9,6 +9,12 @@ import Storage
 import MusicServiceInterface
 import MusicServiceImplement
 
+import MediaPlayerServiceInterface
+import MediaPlayerServiceImplement
+
+import MediaSessionServiceInterface
+import MediaSessionServiceImplement
+
 final class AppDependency {
     private let musicService: MusicService
     private let mediaService: MediaPlayerService

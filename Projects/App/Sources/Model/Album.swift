@@ -22,8 +22,7 @@ extension MusicServiceInterface.Album {
             name: self.title,
             artistName: self.artistName,
             artworkImage: self.artwork,
-            tracks: self.tracks.map { $0.toDomain()
-            }
+            tracks: self.tracks.map { $0.toDomain() }
         )
     }
 }

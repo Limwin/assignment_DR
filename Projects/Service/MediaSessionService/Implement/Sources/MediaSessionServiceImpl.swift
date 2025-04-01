@@ -1,21 +1,25 @@
 //
-//  MPMediaSessionService.swift
-//  MusicPlayer
+//  MediaSessionServiceImpl.swift
+//  MediaSessionService
 //
-//  Created by seunghyeok lim on 3/25/25.
+//  Created by seunghyeok lim on 4/1/25.
 //
 
 import Combine
 import MediaPlayer
 
-final class MPMediaSessionServiceImpl: MPMediaSessionService {
+import MediaSessionServiceInterface
+
+public final class MPMediaSessionServiceImpl: MPMediaSessionService {
     
-    var action: AnyPublisher<MPMediaSessionServiceAction, Never> {
+    public var action: AnyPublisher<MPMediaSessionServiceAction, Never> {
         self.actionSubject.eraseToAnyPublisher()
     }
     private let actionSubject = PassthroughSubject<MPMediaSessionServiceAction, Never>()
     
-    func setup() {
+    public init() { }
+    
+    public func setup() {
         let commandCenter = MPRemoteCommandCenter.shared()
         
         commandCenter.playCommand.removeTarget(nil)
@@ -45,7 +49,7 @@ final class MPMediaSessionServiceImpl: MPMediaSessionService {
         }
     }
     
-    func updateNowPlayingInfo(
+    public func updateNowPlayingInfo(
         title: String,
         artist: String,
         albumName: String,

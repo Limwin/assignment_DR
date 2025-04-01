@@ -28,6 +28,10 @@ let project = Project(
             dependencies: [
                 .Service.MusicService.Interface,
                 .Service.MusicService.Implement,
+                .Service.MediaPlayerService.Interface,
+                .Service.MediaPlayerService.Implement,
+                .Service.MediaSessionService.Interface,
+                .Service.MediaSessionService.Implement,
                 .Shared.CommonExtension
             ]
         ),

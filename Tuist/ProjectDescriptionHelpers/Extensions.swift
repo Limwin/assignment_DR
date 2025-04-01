@@ -55,5 +55,27 @@ public extension TargetDependency {
                 path: .relativeToService("MusicService")
             )
         }
+        
+        public enum MediaPlayerService {
+            public static let Interface = TargetDependency.project(
+                target: "MediaPlayerServiceInterface",
+                path: .relativeToService("MediaPlayerService")
+            )
+            public static let Implement = TargetDependency.project(
+                target: "MediaPlayerServiceImplement",
+                path: .relativeToService("MediaPlayerService")
+            )
+        }
+        
+        public enum MediaSessionService {
+            public static let Interface = TargetDependency.project(
+                target: "MediaSessionServiceInterface",
+                path: .relativeToService("MediaSessionService")
+            )
+            public static let Implement = TargetDependency.project(
+                target: "MediaSessionServiceImplement",
+                path: .relativeToService("MediaSessionService")
+            )
+        }
     }
 }
